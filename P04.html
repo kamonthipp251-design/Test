@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Dodge Game</title>
+<style>
+    body {
+        background: #111;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        font-family: sans-serif;
+        color: white;
+    }
+
+    #game {
+        position: relative;
+        width: 300px;
+        height: 400px;
+        background: #222;
+        overflow: hidden;
+        border: 2px solid #fff;
+    }
+
+    #player {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        background: #00aaff;
+        bottom: 10px;
+        left: 130px;
+    }
+
+    .enemy {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        background: red;
+        top: -40px;
+    }
+
+    #score {
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        font-size: 16px;
+    }
+
+    #gameOver {
+        display: none;
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.8);
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    button {
+        padding: 8px 15px;
+        margin-top: 10px;
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+
+<div id="game">
+    <div id="score">คะแนน: 0</div>
+    <div id="player"></div>
+    <div id="gameOver">
+        <h2>เกมโอเวอร์</h2>
+        <button onclick="location.reload()">เล่นใหม่</button>
+    </div>
+</div>
+
+<script>
+    const game = document.getElementById("game");
+    const player = document.getElementById("player");
+    const scoreText = document.getElementById("score");
+    const gameOverScreen = document.getElementById("gameOver");
+
+    let playerX = 130;
+    let score = 0;
+    let gameRunning = true;
+
+    document.addEventListener("keydown", e => {
+        if (!gameRunning) return;
+        if (e.key === "ArrowLeft" && playerX > 0) playerX -= 20;
+        if (e.key === "ArrowRight" && playerX < 260) playerX += 20;
+        player.style.left = playerX + "px";
+    });
+
+    function createEnemy() {
+        if (!gameRunning) return;
+
+        const enemy = document.createElement("div");
+        enemy.className = "enemy";
+        enemy.style.left = Math.floor(Math.random() * 260) + "px";
+        game.appendChild(enemy);
+
+        let enemyY = -40;
+
+        const fall = setInterval(() => {
+            if (!gameRunning) {
+                clearInterval(fall);
+                return;
+            }
+
+            enemyY += 5;
+            enemy.style.top = enemyY + "px";
+
+            // ตรวจชน
+            if (
+                enemyY > 330 &&
+                parseInt(enemy.style.left) + 40 > playerX &&
+                parseInt(enemy.style.left) < playerX + 40
+            ) {
+                gameRunning = false;
+                gameOverScreen.style.display = "flex";
+                clearInterval(fall);
+            }
+
+            if (enemyY > 400) {
+                clearInterval(fall);
+                enemy.remove();
+                score++;
+                scoreText.textContent = "คะแนน: " + score;
+            }
+        }, 30);
+    }
+
+    setInterval(createEnemy, 1000);
+</script>
+
+</body>
+</html>
